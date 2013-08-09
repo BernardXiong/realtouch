@@ -446,54 +446,6 @@ void rtgui_dc_draw_polygon(struct rtgui_dc *dc, const int *vx, const int *vy, in
 }
 RTM_EXPORT(rtgui_dc_draw_polygon);
 
-void rtgui_dc_draw_regular_polygon(struct rtgui_dc *dc, int x, int y, int r, int count, rt_uint16_t angle)
-{
-    int i, temp_val;
-    double temp;
-    float angle_interval;
-    int *xx;
-    int *x_head;
-    int *yy;
-    int *y_head;
-
-    /*
-    * Sanity check
-    */
-    if (count < 3) return;
-
-    angle_interval = 360.0 / count;
-
-    /*
-    * Pointer setup
-    */
-
-    x_head = xx = (int *)rtgui_malloc(sizeof(int) * count);
-    y_head = yy = (int *)rtgui_malloc(sizeof(int) * count);
-
-    for (i = 0; i < count; i++)
-    {
-        temp     = cos(((angle_interval * i) + angle) * M_PI / 180);
-        temp     *= r;
-        temp_val = (int)temp;
-        *xx      = temp_val + x;
-
-        temp     = sin(((angle_interval * i) + angle) * M_PI / 180);
-        temp     *= r;
-        temp_val = (int)temp;
-        *yy      = temp_val + y;
-
-        xx++;
-        yy++;
-    }
-
-    rtgui_dc_draw_polygon(dc, (const int *)x_head, (const int *)y_head, count);
-
-    rtgui_free(x_head);
-    rtgui_free(y_head);
-
-}
-RTM_EXPORT(rtgui_dc_draw_regular_polygon);
-
 void rtgui_dc_fill_polygon(struct rtgui_dc *dc, const int *vx, const int *vy, int count)
 {
     int i;
