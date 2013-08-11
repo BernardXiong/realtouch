@@ -88,7 +88,6 @@ struct rtgui_app *rtgui_app_create(const char *title)
     {
         /* set user thread */
         tid->user_data = (rt_uint32_t)app;
-        rt_kprintf("RTGUI: creating the server app %p.\n", app);
         return app;
     }
 

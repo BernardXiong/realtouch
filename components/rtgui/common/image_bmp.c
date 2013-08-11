@@ -110,8 +110,7 @@ static rt_bool_t rtgui_image_bmp_check(struct rtgui_filerw *file)
             /* Read image size */
             is_bmp = RT_TRUE;
         }
-    }
-    while (0);
+    } while (0);
 
     return is_bmp;
 }
@@ -203,13 +202,10 @@ static rt_bool_t rtgui_image_bmp_load(struct rtgui_image *image, struct rtgui_fi
         {
             break;
         }
-//        rt_kprintf("BMP: format ok\n");
         /* Read pixel array offset */
         bmp->pixel_offset = *(rt_uint32_t *)&wrkBuffer[10];
-//        rt_kprintf("BMP: bmp->pixel_offset %d\n", bmp->pixel_offset);
         /* Read BMP header size */
         bmpHeaderSize = *(rt_uint32_t *)&wrkBuffer[14];
-//        rt_kprintf("BMP: bmpHeaderSize %d\n", bmpHeaderSize);
         colorsUsed = 0;
         if (bmpHeaderSize == 12)
         {
@@ -470,14 +466,12 @@ static rt_bool_t rtgui_image_bmp_load(struct rtgui_image *image, struct rtgui_fi
             rtgui_filerw_close(bmp->filerw);
             bmp->filerw = RT_NULL;
             bmp->is_loaded = RT_TRUE;
-//            rt_kprintf("BMP: load to RAM\n");
         }
 
         /* Release memory */
         rtgui_free(wrkBuffer);
         return RT_TRUE;
-    }
-    while (0);
+    } while (0);
 
     /* Release memory */
     rtgui_free(wrkBuffer);
@@ -775,7 +769,6 @@ static void rtgui_image_bmp_blit(struct rtgui_image *image, struct rtgui_dc *dc,
             }
             /* Release memory */
             rtgui_free(wrkBuffer);
-//            rt_kprintf("BMP: load to display\n");
         }
         else
         {
@@ -831,9 +824,7 @@ static void rtgui_image_bmp_blit(struct rtgui_image *image, struct rtgui_dc *dc,
                 }
             }
         }
-//        rt_kprintf("BMP: blit ok\n");
-    }
-    while (0);
+    } while (0);
 }
 
 /*
@@ -867,6 +858,7 @@ void rtgui_image_bmp_header_cfg(struct rtgui_image_bmp_header *bhr, rt_int32_t w
         bhr->bfOffBits += 12;
     }
 }
+
 #ifdef RTGUI_USING_DFS_FILERW
 #define WRITE_CLUSTER_SIZE  2048
 void bmp_align_write(struct rtgui_filerw *file, char *dest, char *src, rt_int32_t len, rt_int32_t *count)
@@ -1008,6 +1000,7 @@ void screenshot(const char *filename)
 FINSH_FUNCTION_EXPORT(screenshot, usage: screenshot(filename));
 #endif
 #endif
+
 /*
 * image zoom in, zoom out interface
 * Support 16/24 bits format image
@@ -1085,10 +1078,10 @@ static struct rtgui_image *rtgui_image_bmp_zoom(struct rtgui_image *image,
     {
         for (i = 0; i < dh; i++)
         {
-            int src_th = (int)(scaleh * i + 0.5);
+            int src_th = (int)(scaleh * i + (float)0.5);
             for (j = 0; j < dw; j++)
             {
-                int src_tw = (int)(scalew * j + 0.5);
+                int src_tw = (int)(scalew *j + (float)0.5);
                 rt_memcpy(&des_buf[i * dest_line_size] + j * nbytes,
                           &src_buf[src_th * src_line_size] + src_tw * nbytes,
                           nbytes);
@@ -1215,7 +1208,7 @@ static struct rtgui_image *rtgui_image_bmp_rotate(struct rtgui_image *image, flo
     src_line_size = sw *nbytes;
 
     /* convert angle to radians */
-    age = angle * M_PI / 180.0;
+    age = angle * (float)M_PI / (float)180.0;
     sina = sin(age);
     cosa = cos(age);
 
@@ -1294,7 +1287,7 @@ static struct rtgui_image *rtgui_image_bmp_rotate(struct rtgui_image *image, flo
         }
     }
     d_img->data = d_bmp;
-    /* rt_kprintf("rotate use %d ticks\n", rt_tick_get()-tick); */
+
     return d_img;
 }
 

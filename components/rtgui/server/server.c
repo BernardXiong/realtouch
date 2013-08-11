@@ -333,7 +333,7 @@ static rt_bool_t rtgui_server_event_handler(struct rtgui_object *object,
         rtgui_server_handle_monitor_add((struct rtgui_event_monitor *)event);
         break;
     default:
-        rt_kprintf("RTGUI: wrong event sent to server: %d", event->type);
+        rt_kprintf("RTGUI: wrong event sent to server: %d\n", event->type);
         return RT_FALSE;
     }
 
@@ -353,9 +353,11 @@ static void rtgui_server_entry(void *parameter)
 
     /* create rtgui server application */
     rtgui_server_app = rtgui_app_create("rtgui");
-    rt_kprintf("RTGUI: create server: %p", rtgui_server_app);
     if (rtgui_server_app == RT_NULL)
+    {
+		rt_kprintf("Create GUI server failed.\n");
         return;
+    }
 
     rtgui_object_set_event_handler(RTGUI_OBJECT(rtgui_server_app),
                                    rtgui_server_event_handler);
