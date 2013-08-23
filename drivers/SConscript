@@ -11,6 +11,8 @@ platform.c
 usart.c
 ext_sram.c
 stm32f4xx_it.c
+stm32f4xx_ccm.c
+stm32f4xx_sram.c
 """)
 
 # add SD driver.
@@ -52,7 +54,6 @@ if GetDepend('RT_USING_USB_DEVICE') == True:
 # add RTC driver.
 if GetDepend('RT_USING_RTC') == True:
 	src+= ['stm32f4_rtc.c']
-
 	
 CPPPATH = [cwd]
 

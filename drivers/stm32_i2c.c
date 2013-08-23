@@ -256,7 +256,6 @@ static rt_size_t stm32_i2c_xfer(struct rt_i2c_bus_device *bus,
 {
     struct rt_i2c_msg *msg;
     rt_int32_t i, ret;
-    rt_uint16_t ignore_nack;
 
     I2C_GenerateSTART(I2C1, ENABLE);
     /* Test on EV5 and clear it */
@@ -265,7 +264,6 @@ static rt_size_t stm32_i2c_xfer(struct rt_i2c_bus_device *bus,
     for (i = 0; i < num; i++)
     {
         msg = &msgs[i];
-        ignore_nack = msg->flags & RT_I2C_IGNORE_NACK;
         if (!(msg->flags & RT_I2C_NO_START))
         {
             if (i)

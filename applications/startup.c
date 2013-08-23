@@ -26,10 +26,6 @@
 /*@{*/
 
 extern int  rt_application_init(void);
-#ifdef RT_USING_FINSH
-extern void finsh_system_init(void);
-extern void finsh_set_device(const char* device);
-#endif
 
 #ifdef __CC_ARM
 extern int Image$$RW_IRAM1$$ZI$$Limit;
@@ -71,17 +67,7 @@ void rtthread_startup(void)
     /* show version */
     rt_show_version();
 
-    /* init tick */
-    rt_system_tick_init();
-
-    /* init kernel object */
-    rt_system_object_init();
-
-    /* init timer system */
-    rt_system_timer_init();
-
 #if STM32_EXT_SRAM
-    ext_sram_init();
     rt_system_heap_init((void*)STM32_EXT_SRAM_BEGIN,
                         (void*)STM32_EXT_SRAM_END);
 #else
@@ -91,14 +77,11 @@ void rtthread_startup(void)
     /* init scheduler system */
     rt_system_scheduler_init();
 
-    /* init all device */
-    rt_device_init_all();
+    /* init timer thread */
+    rt_system_timer_thread_init();
 
     /* init application */
     rt_application_init();
-
-    /* init timer thread */
-    rt_system_timer_thread_init();
 
     /* init idle thread */
     rt_thread_idle_init();

@@ -328,12 +328,21 @@ void SD_ProcessIRQSrc(void)
         if (SDIO_GetITStatus(SDIO_IT_DATAEND) != RESET)
         {
             SDIO_ClearITPendingBit(SDIO_IT_DATAEND);
+#if 0			
             if( (stm32f4_sdio->cmd->data->flags & DATA_DIR_READ) &&
                 ((uint32_t)stm32f4_sdio->cmd->data->buf & 0x03) )
             {
                 memcpy(stm32f4_sdio->cmd->data->buf, rx_buf,
                        stm32f4_sdio->cmd->data->blksize * stm32f4_sdio->cmd->data->blks);
             }
+#else
+			if (stm32f4_sdio->cmd->data->flags & DATA_DIR_READ)
+			{
+				memcpy(stm32f4_sdio->cmd->data->buf, rx_buf, 
+					stm32f4_sdio->cmd->data->blksize * stm32f4_sdio->cmd->data->blks);
+			}
+#endif
+
             complete = 1;
         }
 
@@ -352,7 +361,6 @@ void SD_ProcessIRQSrc(void)
         SDIO_ITConfig(STM32F4XX_SDIO_ERRORS, DISABLE);
         stm32f4xx_sdio_completed_command(stm32f4_sdio, intstatus);
     }
-
 }
 
 rt_uint32_t get_order(rt_uint32_t data)
@@ -412,10 +420,15 @@ static void stm32f4xx_sdio_send_command(struct stm32f4xx_sdio *sdio, struct rt_m
         if (data->flags & DATA_DIR_WRITE)
         {
             //rt_kprintf("SDIO W 0x%08X %u\r\n", (uint32_t)data->buf, data->blksize * data->blks);
-            SD_LowLevel_DMA_TxConfig((uint32_t *)data->buf, data->blksize * data->blks);
+            memcpy(rx_buf, data->buf, data->blksize * data->blks);
+            SD_LowLevel_DMA_TxConfig((uint32_t *)rx_buf, data->blksize * data->blks);
+            // SD_LowLevel_DMA_TxConfig((uint32_t *)data->buf, data->blksize * data->blks);
         }
         else if (data->flags & DATA_DIR_READ)
         {
+			SD_LowLevel_DMA_RxConfig((uint32_t *)rx_buf, data->blksize * data->blks);
+
+#if 0
             //rt_kprintf("SDIO R 0x%08X %u\r\n", (uint32_t)data->buf, data->blksize * data->blks);
             if((uint32_t)data->buf & 0x03)
             {
@@ -426,11 +439,11 @@ static void stm32f4xx_sdio_send_command(struct stm32f4xx_sdio *sdio, struct rt_m
             {
                 SD_LowLevel_DMA_RxConfig((uint32_t *)data->buf, data->blksize * data->blks);
             }
+#endif
         }
         SDIO_ITConfig(SDIO_IT_DCRCFAIL | SDIO_IT_DTIMEOUT | SDIO_IT_DATAEND | SDIO_IT_RXOVERR | SDIO_IT_STBITERR, ENABLE);
         SDIO_DMACmd(ENABLE);
     }
-
 }
 
 /*
@@ -521,9 +534,7 @@ static void stm32f4xx_sdio_set_iocfg(struct rt_mmcsd_host *host, struct rt_mmcsd
     }
 
     SDIO_Init(&SDIO_InitStructure);
-
 }
-
 
 static void stm32f4xx_sdio_enable_sdio_irq(struct rt_mmcsd_host *host, rt_int32_t enable)
 {
@@ -550,7 +561,6 @@ rt_int32_t stm32f4xx_SD_Detect(struct rt_mmcsd_host *host)
     return status;
 }
 
-
 static const struct rt_mmcsd_host_ops ops =
 {
     stm32f4xx_sdio_request,
@@ -559,8 +569,7 @@ static const struct rt_mmcsd_host_ops ops =
     stm32f4xx_sdio_enable_sdio_irq,
 };
 
-
-rt_int32_t stm32f4xx_sdio_init(void)
+int stm32f4xx_sdio_init(void)
 {
     struct rt_mmcsd_host *host;
     NVIC_InitTypeDef NVIC_InitStructure;
@@ -605,6 +614,7 @@ rt_int32_t stm32f4xx_sdio_init(void)
     host->private_data = stm32f4_sdio;
 
     mmcsd_change(host);
+	rt_thread_delay(RT_TICK_PER_SECOND);
 
     return 0;
 
@@ -613,7 +623,7 @@ err:
 
     return -RT_ENOMEM;
 }
-
+INIT_DRIVER_EXPORT(stm32f4xx_sdio_init);
 
 /*******************************************************************************
 * Function Name  : SDIO_IRQHandler

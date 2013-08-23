@@ -178,7 +178,7 @@ int net_buf_start_job(rt_size_t (*fetch)(rt_uint8_t* ptr, rt_size_t len, void* p
 	return -1;
 }
 
-void net_buf_stop_job()
+void net_buf_stop_job(void)
 {
 	rt_uint32_t level;
 

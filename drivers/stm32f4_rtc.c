@@ -283,7 +283,7 @@ int rt_hw_rtc_init(void)
         if (RTC_Configuration() != 0)
         {
             rt_kprintf("rtc configure fail...\r\n");
-            return ;
+            return -RT_ERROR;
         }
     }
     else
@@ -321,3 +321,4 @@ int rt_hw_rtc_init(void)
     return 0;
 }
 INIT_DEVICE_EXPORT(rt_hw_rtc_init);
+

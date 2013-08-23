@@ -24,7 +24,7 @@
 struct stm32_uart
 {
 	USART_TypeDef* uart_device;
-	IRQn_Type irq; 
+	IRQn_Type irq;
 };
 
 static rt_err_t stm32_configure(struct rt_serial_device *serial, struct serial_configure *cfg)
@@ -337,7 +337,7 @@ static void NVIC_Configuration(struct stm32_uart* uart)
 	NVIC_Init(&NVIC_InitStructure);
 }
 
-void rt_hw_usart_init(void)
+int rt_hw_usart_init(void)
 {
 	struct stm32_uart* uart;
 	struct serial_configure config;
@@ -409,4 +409,66 @@ void rt_hw_usart_init(void)
 		RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX | RT_DEVICE_FLAG_STREAM,
 		uart);
 #endif
+	return 0;
 }
+INIT_BOARD_EXPORT(rt_hw_usart_init);
+
+/* early console */
+#define CONSOLE_UART	(USART3)
+
+static void rt_hw_console_init(void)
+{
+	USART_InitTypeDef USART_InitStructure;
+	GPIO_InitTypeDef GPIO_InitStructure;
+
+	/* Enable UART3 GPIO clocks */
+	RCC_AHB1PeriphClockCmd(UART3_GPIO_RCC, ENABLE);
+	/* Enable UART3 clock */
+	RCC_APB1PeriphClockCmd(RCC_APBPeriph_UART3, ENABLE);
+
+	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+
+	/* Configure USART3 Rx/tx PIN */
+	GPIO_InitStructure.GPIO_Pin = UART3_GPIO_TX | UART3_GPIO_RX;
+	GPIO_Init(UART3_GPIO, &GPIO_InitStructure);
+
+	/* Connect alternate function */
+	GPIO_PinAFConfig(UART3_GPIO, UART3_TX_PIN_SOURCE, GPIO_AF_USART3);
+	GPIO_PinAFConfig(UART3_GPIO, UART3_RX_PIN_SOURCE, GPIO_AF_USART3);
+
+	USART_InitStructure.USART_BaudRate = 115200;
+	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+	USART_InitStructure.USART_StopBits = USART_StopBits_1;
+	USART_InitStructure.USART_Parity = USART_Parity_No;
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+	USART_Init(CONSOLE_UART, &USART_InitStructure);
+
+	/* Enable USART */
+	USART_Cmd(CONSOLE_UART, ENABLE);
+}
+
+void rt_hw_console_output(const char * str)
+{
+	static rt_bool_t inited = RT_FALSE;
+
+	if (inited == RT_FALSE)
+	{
+		rt_hw_console_init();
+		inited = RT_TRUE;
+	}
+	
+	while (*str)
+	{
+		if (*str == '\n') rt_hw_console_output("\r");
+
+		while (!(CONSOLE_UART->SR & USART_FLAG_TXE));
+		CONSOLE_UART->DR = *str;
+
+		str ++;
+	}
+}
+

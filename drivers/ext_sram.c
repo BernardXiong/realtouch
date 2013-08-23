@@ -1,7 +1,7 @@
 #include "rtthread.h"
 #include "board.h"
 
-void ext_sram_init(void)
+int ext_sram_init(void)
 {
     FSMC_NORSRAMInitTypeDef  FSMC_NORSRAMInitStructure;
     FSMC_NORSRAMTimingInitTypeDef  Timing_read,Timing_write;
@@ -64,4 +64,7 @@ void ext_sram_init(void)
     FSMC_NORSRAMInitStructure.FSMC_Bank = FSMC_Bank1_NORSRAM1;
     FSMC_NORSRAMInit(&FSMC_NORSRAMInitStructure);
     FSMC_NORSRAMCmd(FSMC_NORSRAMInitStructure.FSMC_Bank, ENABLE);
+
+	return 0;
 }
+INIT_BOARD_EXPORT(ext_sram_init);

@@ -433,7 +433,7 @@ rt_err_t rtgui_touch_hw_init(const char * spi_device_name)
     touch->max_y = MAX_Y_DEFAULT;
 
     /* init device structure */
-    touch->parent.type = RT_Device_Class_Unknown;
+    touch->parent.type = RT_Device_Class_Miscellaneous;
     touch->parent.init = rtgui_touch_init;
     touch->parent.control = rtgui_touch_control;
     touch->parent.user_data = RT_NULL;

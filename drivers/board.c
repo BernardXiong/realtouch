@@ -14,6 +14,7 @@
 
 #include <rthw.h>
 #include <rtthread.h>
+#include <components.h>
 
 #include "board.h"
 
@@ -234,10 +235,8 @@ void rt_hw_board_init()
     /* Configure the SysTick */
     SysTick_Config(SystemCoreClock / RT_TICK_PER_SECOND);
 
-    rt_hw_usart_init();
-#ifdef RT_USING_CONSOLE
+    rt_components_board_init();
     rt_console_set_device(RT_CONSOLE_DEVICE_NAME);
-#endif
 
     fsmc_gpio_init();
 

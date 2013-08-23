@@ -493,7 +493,7 @@ struct json_node* json_tree_get_array(struct json_tree* tree, int index, ...)
 
 	RT_ASSERT(tree != RT_NULL);
 
-	va_start(args, tree);
+	va_start(args, index);
 	node = json_tree_get_node_va(tree, args);
 	va_end(args);
 

@@ -12,22 +12,10 @@
  * 2009-01-05     Bernard      the first version
  */
 
-/**
- * @addtogroup STM32
- */
-/*@{*/
-
 #include <stdio.h>
 #include <rtthread.h>
 #include <board.h>
 #include <components.h>
-
-const struct dfs_mount_tbl mount_table[] = 
-{
-	{"flash0", "/", "elm", 0, 0},
-	{"sd0", "/SD", "elm", 0, 0},
-	{RT_NULL, RT_NULL, RT_NULL, 0, 0},
-};
 
 void rt_init_thread_entry(void *parameter)
 {
@@ -37,8 +25,6 @@ void rt_init_thread_entry(void *parameter)
     rt_components_init();
 
 	codec_hw_init("i2c1");
-	/* set device for shell */
-	finsh_set_device(RT_CONSOLE_DEVICE_NAME);
 
 	realtouch_ui_init();
 }
@@ -55,6 +41,4 @@ int rt_application_init(void)
 
     return 0;
 }
-
-/*@}*/
 

@@ -23,6 +23,8 @@
 #define RT_DEBUG
 // <bool name="RT_THREAD_DEBUG" description="Thread debug enable" default="false" />
 // #define RT_THREAD_DEBUG
+// <integer name="RT_DEBUG_INIT" description="Enable initialization debug trace" default="0" />
+// #define RT_DEBUG_INIT	1
 // <bool name="RT_USING_OVERFLOW_CHECK" description="Thread stack over flow detect" default="true" />
 #define RT_USING_OVERFLOW_CHECK
 // </section>
@@ -51,6 +53,8 @@
 #define RT_USING_SMALL_MEM
 // <bool name="RT_USING_SLAB" description="Using SLAB memory management for large memory" default="false" />
 // #define RT_USING_SLAB
+// <bool name="RT_USING_MEMHEAP" description="Using memheap to manage memory pool." default="true" />
+#define RT_USING_MEMHEAP
 // </section>
 
 // <section name="RT_USING_DEVICE" description="Using Device Driver Framework" default="true" >
@@ -65,6 +69,8 @@
 #define RT_UART_RX_BUFFER_SIZE	64
 // <bool name="RT_USING_I2C" description="Using I2C Device Driver Framework" default="true" />
 #define RT_USING_I2C
+// <bool name="RT_USING_RTC" description="Using RTC Device Driver Framework" default="true" />
+#define RT_USING_RTC
 // <bool name="RT_USING_SDIO" description="Using SDIO Device Driver Framework" default="true" />
 #define RT_USING_SDIO
 // <integer name="RT_MMCSD_THREAD_PREORITY" description="The prority of mmcsd thread" default="15" />
@@ -259,4 +265,14 @@
 
 // </RDTConfigurator>
 
+/* using CCM as kernel memory */
+void *ccm_malloc(int size);
+void ccm_free(void *rmem);
+void *ccm_realloc(void *rmem, int newsize);
+
+#define RT_KERNEL_MALLOC(sz)            ccm_malloc(sz)
+#define RT_KERNEL_FREE(ptr)             ccm_free(ptr)
+#define RT_KERNEL_REALLOC(ptr, size)    ccm_realloc(ptr, size)
+
 #endif
+
