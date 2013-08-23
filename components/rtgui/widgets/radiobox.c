@@ -168,6 +168,7 @@ rt_bool_t rtgui_radiobox_event_handler(struct rtgui_object *object, struct rtgui
 
     return RT_FALSE;
 }
+RTM_EXPORT(rtgui_radiobox_event_handler);
 
 struct rtgui_radiobox *rtgui_radiobox_create(const char *label, int orient, char **radio_items, int number)
 {
@@ -217,6 +218,13 @@ struct rtgui_radiobox *rtgui_radiobox_create(const char *label, int orient, char
 
     return radiobox;
 }
+RTM_EXPORT(rtgui_radiobox_create);
+
+void rtgui_radiobox_destroy(struct rtgui_radiobox *radiobox)
+{
+    rtgui_widget_destroy(RTGUI_WIDGET(radiobox));
+}
+RTM_EXPORT(rtgui_radiobox_destroy);
 
 void rtgui_radiobox_set_orientation(struct rtgui_radiobox *radiobox, int orientation)
 {
@@ -239,6 +247,7 @@ void rtgui_radiobox_set_orientation(struct rtgui_radiobox *radiobox, int orienta
     }
 #endif
 }
+RTM_EXPORT(rtgui_radiobox_set_orientation);
 
 void rtgui_radiobox_set_selection(struct rtgui_radiobox *radiobox, int selection)
 {
@@ -256,8 +265,11 @@ void rtgui_radiobox_set_selection(struct rtgui_radiobox *radiobox, int selection
     rtgui_theme_draw_radiobutton(radiobox, old_item);
     rtgui_theme_draw_radiobutton(radiobox, radiobox->item_selection);
 }
+RTM_EXPORT(rtgui_radiobox_set_selection);
 
 int rtgui_radiobox_get_selection(struct rtgui_radiobox *radiobox)
 {
     return radiobox->item_selection;
 }
+RTM_EXPORT(rtgui_radiobox_get_selection);
+
