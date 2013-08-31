@@ -10,6 +10,8 @@
  * Change Logs:
  * Date           Author       Notes
  * 2009-10-16     Bernard      first version
+ * 2013-08-31     Bernard      remove the default font setting.
+ *                             (which set by theme)
  */
 #include <rtgui/font.h>
 #include <rtgui/dc.h>
@@ -46,15 +48,6 @@ void rtgui_font_system_init()
     rtgui_font_system_add_font(&rtgui_font_hz12);
 #endif
 #endif
-
-#ifdef RTGUI_USING_FONT12
-    if (rtgui_default_font == RT_NULL)
-        rtgui_font_set_defaut(&rtgui_font_asc12);
-#endif
-#ifdef RTGUI_USING_FONT16
-    if (rtgui_default_font == RT_NULL)
-        rtgui_font_set_defaut(&rtgui_font_asc16);
-#endif
 }
 
 void rtgui_font_system_add_font(struct rtgui_font *font)
@@ -85,6 +78,7 @@ struct rtgui_font *rtgui_font_default()
 
 void rtgui_font_set_defaut(struct rtgui_font *font)
 {
+	rt_kprintf("set font size to %d\n", font->height);
     rtgui_default_font = font;
 }
 
@@ -121,6 +115,7 @@ void rtgui_font_derefer(struct rtgui_font *font)
         rtgui_font_system_remove_font(font);
     }
 }
+RTM_EXPORT(rtgui_font_derefer);
 
 /* draw a text */
 void rtgui_font_draw(struct rtgui_font *font, struct rtgui_dc *dc, const char *text, rt_ubase_t len, struct rtgui_rect *rect)
@@ -143,6 +138,7 @@ int rtgui_font_get_string_width(struct rtgui_font *font, const char *text)
 
     return rect.x2 - rect.x1;
 }
+RTM_EXPORT(rtgui_font_get_string_width);
 
 void rtgui_font_get_metrics(struct rtgui_font *font, const char *text, rtgui_rect_t *rect)
 {
@@ -159,3 +155,5 @@ void rtgui_font_get_metrics(struct rtgui_font *font, const char *text, rtgui_rec
         rt_memset(rect, 0, sizeof(rtgui_rect_t));
     }
 }
+RTM_EXPORT(rtgui_font_get_metrics);
+
