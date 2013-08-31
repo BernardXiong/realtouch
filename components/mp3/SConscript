@@ -16,6 +16,6 @@ if rtconfig.PLATFORM == 'gcc':
 cwd = GetCurrentDir()
 CPPPATH = [cwd + '/pub']
 
-group = DefineGroup('mp3', src, depend = [''], CPPPATH = CPPPATH)
+group = DefineGroup('mp3', src, depend = ['RT_USING_MP3_DECODE'], CPPPATH = CPPPATH)
 
 Return('group')

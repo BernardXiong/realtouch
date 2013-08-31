@@ -1,5 +1,7 @@
 #include <rtthread.h>
 #include <dfs_posix.h>
+
+#ifdef RT_USING_MP3_DECODE
 #include <mp3dec.h>
 #include <string.h>
 
@@ -486,4 +488,5 @@ void douban_radio()
 	}
 }
 FINSH_FUNCTION_EXPORT(douban_radio, douban radio test);
+#endif
 #endif

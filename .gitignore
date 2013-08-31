@@ -2,6 +2,7 @@
 *.bak
 *.dep
 *.o
+*.obj
 *.a
 *.lib
 *.elf
@@ -15,3 +16,4 @@ build
 tmpcmd.txt
 project.*
 jlink
+x86

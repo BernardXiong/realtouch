@@ -54,9 +54,8 @@ int realtouch_ui_init(void)
 
     /* re-set graphic device */    
     rtgui_graphic_set_device(device); 
-    /*font system init*/		
-    rtgui_font_system_init();
     app_mgr_init();
 
 	return 0;
 }
+

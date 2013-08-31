@@ -8,10 +8,11 @@
 #include <rtgui/widgets/panel.h>
 
 #ifdef _WIN32
-#include <io.h>
-#include <dirent.h>
-#include <sys/stat.h>
+// #include <io.h>
+// #include <dirent.h>
+// #include <sys/stat.h>
 #define PATH_SEPARATOR      '\\'
+#include <dfs_posix.h>
 #else
 #include <dfs_posix.h>
 #define PATH_SEPARATOR      '/'
@@ -109,6 +110,7 @@ static int xml_load_items(const char* filename)
 
 static void exec_app(rtgui_widget_t* widget, void* parameter)
 {
+#if 0
     char path[64];
     rt_module_t module;
 
@@ -130,6 +132,7 @@ static void exec_app(rtgui_widget_t* widget, void* parameter)
         if(app != RT_NULL) rtgui_app_activate(app);
         else rt_kprintf("application is null\n");
     }
+#endif
 #endif
 }
 
@@ -153,16 +156,16 @@ static void scan_app_dir(const char* path)
         if (entry == RT_NULL)
             break;
 
-        if (strcmp(entry->d_name, ".") == 0 
+        if (strcmp(entry->d_name, ".") == 0
              || strcmp(entry->d_name, "..") == 0)
             continue;
-        
+
         rt_sprintf(fn, "%s/%s", path, entry->d_name);
-        if (dfs_file_stat(fn, &stat) != 0) 
+        if (dfs_file_stat(fn, &stat) != 0)
             break;
         if(! DFS_S_ISDIR(stat.st_mode))
             continue;
-        
+
         rt_sprintf(fn, "%s/%s/%s.xml", path, entry->d_name, entry->d_name);
 
         xml_load_items(fn);
