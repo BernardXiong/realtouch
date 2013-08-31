@@ -180,10 +180,12 @@
 #define RT_USING_RTGUI
 // <integer name="RTGUI_NAME_MAX" description="Maximal size of RTGUI object name length" default="16" />
 #define RTGUI_NAME_MAX	16
+// <integer name="RTGUI_DEFAULT_FONT_SIZE" description="The default point size of font in GUI" default="16" />
+#define RTGUI_DEFAULT_FONT_SIZE	16
 // <bool name="RTGUI_USING_FONT16" description="Support 16 weight font" default="true" />
 #define RTGUI_USING_FONT16
 // <bool name="RTGUI_USING_FONT12" description="Support 12 weight font" default="false" />
-//#define RTGUI_USING_FONT12
+#define RTGUI_USING_FONT12
 // <bool name="RTGUI_USING_FONTHZ" description="Support Chinese font" default="false" />
 #define RTGUI_USING_FONTHZ
 // <bool name="RTGUI_USING_DFS_FILERW" description="Using DFS as file interface " default="true" />
