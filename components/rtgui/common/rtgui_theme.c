@@ -48,9 +48,10 @@ void rtgui_system_theme_init()
 #endif
 }
 
-static const rt_uint8_t close_byte[14] = {0x06, 0x18, 0x03, 0x30, 0x01, 0xE0, 0x00,
-        0xC0, 0x01, 0xE0, 0x03, 0x30, 0x06, 0x18
-                                         };
+static const rt_uint8_t close_byte[14] = {
+    0x06, 0x18, 0x03, 0x30, 0x01, 0xE0, 0x00,
+    0xC0, 0x01, 0xE0, 0x03, 0x30, 0x06, 0x18
+};
 
 /* window drawing */
 void rtgui_theme_draw_win(struct rtgui_topwin *win)
@@ -312,7 +313,7 @@ void rtgui_theme_draw_textbox(rtgui_textbox_t *box)
         if (box->flag & RTGUI_TEXTBOX_MASK)
         {
             /* draw '*' */
-            rt_size_t len = rt_strlen(box->text);
+            rt_size_t len = rt_strlen((char*)box->text);
             if (len > 0)
             {
                 char *text_mask = rtgui_malloc(len + 1);
@@ -324,7 +325,7 @@ void rtgui_theme_draw_textbox(rtgui_textbox_t *box)
         }
         else
         {
-            rtgui_dc_draw_text(dc, box->text, &rect);
+            rtgui_dc_draw_text(dc, (char*)box->text, &rect);
         }
 
         /* draw caret */

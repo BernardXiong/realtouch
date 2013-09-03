@@ -202,7 +202,7 @@ static void rtgui_textbox_onmouse(rtgui_textbox_t *box, struct rtgui_event_mouse
 	RT_ASSERT(box != RT_NULL);
 	RT_ASSERT(event != RT_NULL);
 
-	length = rt_strlen(box->text);
+	length = rt_strlen((char*)box->text);
 
 	if (event->button & RTGUI_MOUSE_BUTTON_LEFT && event->button & RTGUI_MOUSE_BUTTON_DOWN)
 	{
@@ -267,7 +267,7 @@ static rt_bool_t rtgui_textbox_onkey(struct rtgui_object *widget, rtgui_event_t 
 		box->dis_length = ((rtgui_rect_width(rect) - 5) / box->font_width) & ~0x1;
 	}
 
-	length = rt_strlen(box->text);
+	length = rt_strlen((char*)box->text);
 	if (ekbd->key == RTGUIK_DELETE)
 	{
 		/* delete latter character */
@@ -283,7 +283,7 @@ static rt_bool_t rtgui_textbox_onkey(struct rtgui_object *widget, rtgui_event_t 
         else
 		{
             int chw;
-			char *c;
+			unsigned char *c;
 
             if (box->text[TB_ABSPOS(box)] > 0x80)
                 chw = 2;
@@ -386,7 +386,7 @@ static rt_bool_t rtgui_textbox_onkey(struct rtgui_object *widget, rtgui_event_t 
 		}
 		else if (box->position != 0)
 		{
-            char *c;
+            unsigned char *c;
             int chw;
 
             if (box->position > 1 &&
@@ -540,15 +540,15 @@ static rt_bool_t rtgui_textbox_onkey(struct rtgui_object *widget, rtgui_event_t 
             {
                 /* exception: '.' and '-' */
                 if (chr != '.' && chr != '-')return RT_FALSE;
-                if (chr == '.' && strchr(box->text, '.'))return RT_FALSE;
+                if (chr == '.' && strchr((char*)box->text, '.'))return RT_FALSE;
 
                 if (chr == '-')
                 {
                     if (length + chw > box->line_length) return RT_FALSE;
 
-                    if (strchr(box->text, '-'))
+                    if (strchr((char*)box->text, '-'))
                     {
-                        char *c;
+                        unsigned char *c;
                         for (c = &box->text[0]; c != &box->text[length]; c++)
                             *c = *(c + 1);
                         box->text[length] = '\0';
@@ -557,7 +557,7 @@ static rt_bool_t rtgui_textbox_onkey(struct rtgui_object *widget, rtgui_event_t 
                     }
                     else
                     {
-                        char *c;
+                        unsigned char *c;
                         for (c = &box->text[length]; c != &box->text[0]; c--)
                             *c = *(c - 1);
                         box->text[0] = '-';
@@ -574,7 +574,7 @@ static rt_bool_t rtgui_textbox_onkey(struct rtgui_object *widget, rtgui_event_t 
 
         if (TB_ABSPOS(box) <= length - 1)
         {
-            char *c;
+            unsigned char *c;
 
             for (c = &box->text[length + chw - 1];
                  c != &box->text[TB_ABSPOS(box)];
@@ -743,7 +743,7 @@ void rtgui_textbox_ondraw(rtgui_textbox_t *box)
 		if (box->flag & RTGUI_TEXTBOX_MASK)
 		{
 			/* draw mask char */
-			rt_size_t len = rt_strlen(box->text);
+			rt_size_t len = rt_strlen((char*)box->text);
 			if (len > 0)
 			{
 				char *text_mask = rtgui_malloc(len + 1);
@@ -755,7 +755,7 @@ void rtgui_textbox_ondraw(rtgui_textbox_t *box)
 		}
 		else
 		{
-			rtgui_dc_draw_text(dc, box->text+box->first_pos, &rect);
+			rtgui_dc_draw_text(dc, (char*)(box->text+box->first_pos), &rect);
 		}
 	}
 
@@ -804,7 +804,7 @@ char rtgui_textbox_get_mask_char(rtgui_textbox_t *box)
 
 rt_err_t rtgui_textbox_set_line_length(rtgui_textbox_t *box, rt_size_t length)
 {
-    char *new_line;
+    unsigned char *new_line;
 
     RT_ASSERT(box != RT_NULL);
 
@@ -812,7 +812,7 @@ rt_err_t rtgui_textbox_set_line_length(rtgui_textbox_t *box, rt_size_t length)
     if (length <= 0)
         return -RT_ERROR;
 
-    new_line = rtgui_realloc(box->text, length+1);
+    new_line = (unsigned char* )rtgui_realloc(box->text, length+1);
     if (new_line == RT_NULL)
         return -RT_ENOMEM;
 

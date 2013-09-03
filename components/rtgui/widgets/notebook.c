@@ -637,7 +637,6 @@ struct rtgui_object* rtgui_notebook_get_object(struct rtgui_notebook *notebook,
                                                rt_uint32_t id)
 {
     int i;
-    struct rtgui_list_node *node;
 
     for (i = 0; i < notebook->count; i++)
     {
