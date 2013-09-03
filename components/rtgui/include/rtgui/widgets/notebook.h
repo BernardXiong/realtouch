@@ -69,4 +69,5 @@ struct rtgui_widget *rtgui_notebook_get_widget_at(struct rtgui_notebook *noteboo
 
 rt_bool_t rtgui_notebook_event_handler(struct rtgui_object *widget, struct rtgui_event *event);
 
+struct rtgui_object* rtgui_notebook_get_object(struct rtgui_notebook *notebook, rt_uint32_t id);
 #endif

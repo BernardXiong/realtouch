@@ -1347,8 +1347,23 @@ static rt_bool_t rtgui_edit_onkey(struct rtgui_object *object, rtgui_event_t *ev
     }
     else
     {
-        if (isprint((unsigned char)ekbd->key))
+        /* FIXME: more check on isprint(unicode)*/
+        if (ekbd->unicode || isprint((unsigned char)ekbd->key))
         {
+            int char_width;
+            rt_uint16_t input_char;
+
+            if (ekbd->unicode)
+            {
+                char_width = 2;
+                input_char = ekbd->unicode;
+            }
+            else
+            {
+                char_width = 1;
+                input_char = ekbd->key;
+            }
+
             /* it's may print character */
             update_type = EDIT_UPDATE;
             edit->update.start = edit->visual;
@@ -1358,25 +1373,40 @@ static rt_bool_t rtgui_edit_onkey(struct rtgui_object *object, rtgui_event_t *ev
             if (edit->flag & RTGUI_EDIT_CAPSLOCK)
                 ekbd->key = query_caps_code(ekbd->key);
 
-            if (line->len < line->zsize - 1)
+            if (line->len < line->zsize - char_width)
             {
                 int ofs = edit->upleft.x + edit->visual.x;
-                if (edit->visual.x >= edit->col_per_page - 1)
+                if (edit->visual.x >= edit->col_per_page - char_width)
                 {
-                    edit->upleft.x ++;
+                    edit->upleft.x += char_width;
                     update_type = EDIT_ONDRAW;
                 }
 
                 if (ofs < line->len)
                 {
                     char *c;
-                    for (c = &line->text[line->len]; c != &line->text[ofs]; c--)
-                        *c = *(c - 1);
+                    for (c = &line->text[line->len + char_width - 1];
+                         c != &line->text[ofs];
+                         c--)
+                        *c = *(c - char_width);
                 }
-                line->text[ofs] = (char)ekbd->key;
-                if (edit->visual.x < edit->col_per_page - 1)
-                    edit->visual.x ++;
-                line->text[line->len + 1] = '\0';
+                if (char_width == 1)
+                {
+                    line->text[ofs] = input_char;
+                }
+                else if (char_width == 2)
+                {
+                    /* little endian */
+                    line->text[ofs]   = input_char >> 8;
+                    line->text[ofs+1] = input_char & 0xFF;
+                }
+                else
+                {
+                    RT_ASSERT(0);
+                }
+                if (edit->visual.x < edit->col_per_page - char_width)
+                    edit->visual.x += char_width;
+                line->text[line->len + char_width] = '\0';
                 line->len = rtgui_edit_line_strlen(line->text);
                 edit->update.end.x = line->len;
                 if (edit->update.end.x > edit->col_per_page)

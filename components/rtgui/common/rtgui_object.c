@@ -21,6 +21,7 @@ static void _rtgui_object_constructor(rtgui_object_t *object)
         return;
 
     object->flag = RTGUI_OBJECT_FLAG_NONE;
+    object->id   = (rt_uint32_t)object;
 }
 
 /* Destroys the object */
@@ -204,3 +205,19 @@ rt_bool_t rtgui_object_event_handler(struct rtgui_object *object, struct rtgui_e
 }
 RTM_EXPORT(rtgui_object_event_handler);
 
+void rtgui_object_set_id(struct rtgui_object *object, rt_uint32_t id)
+{
+#ifdef RTGUI_USING_ID_CHECK
+    struct rtgui_object *obj = rtgui_get_self_object(id);
+    RT_ASSERT(!obj);
+#endif
+
+    object->id = id;
+}
+RTM_EXPORT(rtgui_object_set_id);
+
+rt_uint32_t rtgui_object_get_id(struct rtgui_object *object)
+{
+    return object->id;
+}
+RTM_EXPORT(rtgui_object_get_id);

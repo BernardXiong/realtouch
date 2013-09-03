@@ -62,6 +62,7 @@ extern "C" {
     rt_bool_t rtgui_container_dispatch_event(rtgui_container_t *container, rtgui_event_t *event);
     rt_bool_t rtgui_container_dispatch_mouse_event(rtgui_container_t *container, struct rtgui_event_mouse *event);
 
+    struct rtgui_object* rtgui_container_get_object(struct rtgui_container *container, rt_uint32_t id);
 #ifdef __cplusplus
 }
 #endif

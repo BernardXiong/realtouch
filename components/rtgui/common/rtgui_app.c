@@ -382,4 +382,3 @@ void rtgui_app_set_main_win(struct rtgui_app *app, struct rtgui_win *win)
     app->main_object = RTGUI_OBJECT(win);
 }
 RTM_EXPORT(rtgui_app_set_main_win);
-

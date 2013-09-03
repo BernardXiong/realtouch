@@ -580,7 +580,7 @@ static void _rtgui_notebook_all_widget_handle(struct rtgui_notebook *notebook,
 rt_bool_t rtgui_notebook_event_handler(struct rtgui_object *object, struct rtgui_event *event)
 {
     int page_index;
-    rtgui_rect_t rect;  
+    rtgui_rect_t rect;
     struct rtgui_notebook *notebook;
 
     RT_ASSERT(object != RT_NULL);
@@ -614,7 +614,7 @@ rt_bool_t rtgui_notebook_event_handler(struct rtgui_object *object, struct rtgui
         /* update all the widgets in myself */
         _rtgui_notebook_all_widget_handle(notebook, event);
         return RT_FALSE;
-    
+
     case RTGUI_EVENT_RESIZE:
         /* re-size page widget */
         _rtgui_notebook_get_page_rect(notebook, &rect);
@@ -631,4 +631,38 @@ rt_bool_t rtgui_notebook_event_handler(struct rtgui_object *object, struct rtgui
     }
 
     return RT_FALSE;
+}
+
+struct rtgui_object* rtgui_notebook_get_object(struct rtgui_notebook *notebook,
+                                               rt_uint32_t id)
+{
+    int i;
+    struct rtgui_list_node *node;
+
+    for (i = 0; i < notebook->count; i++)
+    {
+        struct rtgui_object *o = RTGUI_OBJECT(notebook->childs[i].widget);
+
+        if (o->id == id)
+            return o;
+
+        if (RTGUI_IS_CONTAINER(o))
+        {
+            struct rtgui_object *obj;
+
+            obj = rtgui_container_get_object(RTGUI_CONTAINER(o), id);
+            if (obj)
+                return obj;
+        }
+        else if (RTGUI_IS_NOTEBOOK(o))
+        {
+            struct rtgui_object *obj;
+
+            obj = rtgui_notebook_get_object(RTGUI_NOTEBOOK(o), id);
+            if (obj)
+                return obj;
+        }
+    }
+
+    return RT_NULL;
 }

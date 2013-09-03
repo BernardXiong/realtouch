@@ -16,6 +16,7 @@
 #include <rtgui/rtgui_system.h>
 #include <rtgui/rtgui_app.h>
 #include <rtgui/widgets/container.h>
+#include <rtgui/widgets/notebook.h>
 #include <rtgui/widgets/window.h>
 
 static void _rtgui_container_constructor(rtgui_container_t *container)
@@ -321,3 +322,36 @@ void rtgui_container_layout(struct rtgui_container *container)
 }
 RTM_EXPORT(rtgui_container_layout);
 
+struct rtgui_object* rtgui_container_get_object(struct rtgui_container *container,
+                                                rt_uint32_t id)
+{
+    struct rtgui_list_node *node;
+
+    rtgui_list_foreach(node, &(container->children))
+    {
+        struct rtgui_object *o;
+        o = RTGUI_OBJECT(rtgui_list_entry(node, struct rtgui_widget, sibling));
+
+        if (o->id == id)
+            return o;
+
+        if (RTGUI_IS_CONTAINER(o))
+        {
+            struct rtgui_object *obj;
+
+            obj = rtgui_container_get_object(RTGUI_CONTAINER(o), id);
+            if (obj)
+                return obj;
+        }
+        else if (RTGUI_IS_NOTEBOOK(o))
+        {
+            struct rtgui_object *obj;
+
+            obj = rtgui_notebook_get_object(RTGUI_NOTEBOOK(o), id);
+            if (obj)
+                return obj;
+        }
+    }
+
+    return RT_NULL;
+}

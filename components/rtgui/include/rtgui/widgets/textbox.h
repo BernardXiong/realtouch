@@ -61,7 +61,7 @@ struct rtgui_textbox
 	rt_uint16_t first_pos;
 	char mask_char;
     /** a NULL terminated string that the textbox is holding */
-	char *text;
+	unsigned char *text;
 	rt_size_t font_width;
 
 	rtgui_timer_t *caret_timer;

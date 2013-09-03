@@ -18,8 +18,8 @@
 #include <rtgui/rtgui_config.h>
 
 #define RTGUI_VERSION          0L        /**< major version number */
-#define RTGUI_SUBVERSION       6L        /**< minor version number */
-#define RTGUI_REVISION         1L        /**< revise version number */
+#define RTGUI_SUBVERSION       7L        /**< minor version number */
+#define RTGUI_REVISION         0L        /**< revise version number */
 #define RTGUI_CODENAME         "Newton"  /**< code name */
 
 #define RT_INT16_MAX        32767

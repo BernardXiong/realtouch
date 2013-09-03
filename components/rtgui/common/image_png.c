@@ -79,7 +79,7 @@ static rt_bool_t rtgui_image_png_process(png_structp png_ptr, png_infop info_ptr
             {
                 data = &(row[x * 4]);
 
-                ptr[x + y * info_ptr->width] = RTGUI_ARGB((255 - data[3]), data[0], data[1], data[2]);
+                ptr[x + y * info_ptr->width] = RTGUI_ARGB(data[3], data[0], data[1], data[2]);
             }
         }
 
@@ -341,7 +341,7 @@ static void rtgui_image_png_blit(struct rtgui_image *image, struct rtgui_dc *dc,
                     if (data[3] != 0)
                     {
                         rtgui_dc_draw_color_point(dc, x + rect->x1, y + rect->y1,
-                                                  RTGUI_ARGB((255 - data[3]), data[0], data[1], data[2]));
+                                                  RTGUI_ARGB(data[3], data[0], data[1], data[2]));
                     }
                 }
             }

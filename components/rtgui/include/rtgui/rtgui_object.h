@@ -112,6 +112,8 @@ extern "C" {
         rtgui_event_handler_ptr event_handler;
 
         enum rtgui_object_flag flag;
+
+        rt_uint32_t id;
     };
 
     rtgui_object_t *rtgui_object_create(rtgui_type_t *object_type);
@@ -145,6 +147,11 @@ extern "C" {
 
     rtgui_object_t *rtgui_object_check_cast(rtgui_object_t *object, rtgui_type_t *type, const char *func, int line);
     rtgui_type_t   *rtk_object_object_type_get(rtgui_object_t *object);
+
+void rtgui_object_set_id(struct rtgui_object *obj, rt_uint32_t id);
+rt_uint32_t rtgui_object_get_id(struct rtgui_object *obj);
+struct rtgui_object* rtgui_get_object(struct rtgui_app *app, rt_uint32_t id);
+struct rtgui_object* rtgui_get_self_object(rt_uint32_t id);
 
 #ifdef __cplusplus
 }

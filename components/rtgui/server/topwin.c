@@ -21,6 +21,7 @@
 #include <rtgui/rtgui_system.h>
 #include <rtgui/rtgui_app.h>
 #include <rtgui/widgets/window.h>
+#include <rtgui/widgets/container.h>
 
 /* This list is divided into two parts. The first part is the shown list, in
  * which all the windows have the WINTITLE_SHOWN flag set. Second part is the
@@ -489,6 +490,13 @@ static void _rtgui_topwin_draw_tree(struct rtgui_topwin *topwin, struct rtgui_ev
 {
     struct rtgui_dlist_node *node;
 
+    rtgui_dlist_foreach(node, &topwin->child_list, prev)
+    {
+        if (!(get_topwin_from_list(node)->flag & WINTITLE_SHOWN))
+            break;
+        _rtgui_topwin_draw_tree(get_topwin_from_list(node), epaint);
+    }
+
     if (topwin->title != RT_NULL)
     {
         rtgui_theme_draw_win(topwin);
@@ -496,13 +504,6 @@ static void _rtgui_topwin_draw_tree(struct rtgui_topwin *topwin, struct rtgui_ev
 
     epaint->wid = topwin->wid;
     rtgui_send(topwin->app, &(epaint->parent), sizeof(*epaint));
-
-    rtgui_dlist_foreach(node, &topwin->child_list, prev)
-    {
-        if (!(get_topwin_from_list(node)->flag & WINTITLE_SHOWN))
-            return;
-        _rtgui_topwin_draw_tree(get_topwin_from_list(node), epaint);
-    }
 }
 
 rt_err_t rtgui_topwin_activate_topwin(struct rtgui_topwin *topwin)
@@ -526,7 +527,12 @@ rt_err_t rtgui_topwin_activate_topwin(struct rtgui_topwin *topwin)
         _rtgui_topwin_raise_tree_from_root(topwin);
         rtgui_topwin_update_clip();
         _rtgui_topwin_draw_tree(
-                _rtgui_topwin_get_root_win(topwin), &epaint);
+#ifdef RTGUI_ONLY_ONE_WINDOW_TREE
+                topwin,
+#else
+                _rtgui_topwin_get_root_win(topwin),
+#endif
+                &epaint);
         return RT_EOK;
     }
 
@@ -552,7 +558,12 @@ rt_err_t rtgui_topwin_activate_topwin(struct rtgui_topwin *topwin)
     _rtgui_topwin_only_activate(topwin);
 
     _rtgui_topwin_draw_tree(
-            _rtgui_topwin_get_root_win(topwin), &epaint);
+#ifdef RTGUI_ONLY_ONE_WINDOW_TREE
+                topwin,
+#else
+                _rtgui_topwin_get_root_win(topwin),
+#endif
+                &epaint);
 
     return RT_EOK;
 }
@@ -1153,6 +1164,68 @@ void rtgui_topwin_remove_monitor_rect(struct rtgui_win *wid, rtgui_rect_t *rect)
     /* remove rect from top window monitor rect list */
     rtgui_mouse_monitor_remove(&(win->monitor_list), rect);
 }
+
+static struct rtgui_object* _get_obj_in_topwin(struct rtgui_topwin *topwin,
+                                               struct rtgui_app *app,
+                                               rt_uint32_t id)
+{
+    struct rtgui_object *object;
+    struct rtgui_dlist_node *node;
+
+    object = RTGUI_OBJECT(topwin->wid);
+    if (object->id == id)
+        return object;
+
+    object = rtgui_container_get_object(RTGUI_CONTAINER(object), id);
+    if (object)
+        return object;
+
+    rtgui_dlist_foreach(node, &topwin->child_list, next)
+    {
+        struct rtgui_topwin *topwin;
+
+        topwin = get_topwin_from_list(node);
+        if (topwin->app != app)
+            continue;
+
+        object = _get_obj_in_topwin(topwin, app, id);
+        if (object)
+            return object;
+    }
+
+    return RT_NULL;
+}
+
+struct rtgui_object* rtgui_get_object(struct rtgui_app *app, rt_uint32_t id)
+{
+    struct rtgui_object *object;
+    struct rtgui_dlist_node *node;
+
+    object = RTGUI_OBJECT(app);
+    if (object->id == id)
+        return object;
+
+    rtgui_dlist_foreach(node, &_rtgui_topwin_list, next)
+    {
+        struct rtgui_topwin *topwin;
+
+        topwin = get_topwin_from_list(node);
+        if (topwin->app != app)
+            continue;
+
+        object = _get_obj_in_topwin(topwin, app, id);
+        if (object)
+            return object;
+    }
+    return RT_NULL;
+}
+RTM_EXPORT(rtgui_get_object);
+
+struct rtgui_object* rtgui_get_self_object(rt_uint32_t id)
+{
+    return rtgui_get_object(rtgui_app_self(), id);
+}
+RTM_EXPORT(rtgui_get_self_object);
 
 static void _rtgui_topwin_dump(struct rtgui_topwin *topwin)
 {
