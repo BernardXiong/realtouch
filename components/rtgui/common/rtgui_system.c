@@ -48,6 +48,9 @@ int rtgui_system_server_init(void)
     rtgui_topwin_init();
     rtgui_server_init();
 
+	/* use driver rect for main window */
+	rtgui_graphic_driver_get_rect(rtgui_graphic_driver_get_default(), &_mainwin_rect);
+
     /* init theme */
     rtgui_system_theme_init();
     return 0;
