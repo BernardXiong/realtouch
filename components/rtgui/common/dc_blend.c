@@ -427,8 +427,8 @@ void rtgui_dc_draw_aa_line(struct rtgui_dc * dst, int x1, int y1, int x2, int y2
 			for (index = 0; index < rtgui_region_num_rects(&(owner->clip)); index ++)
 	    	{
 		        rtgui_rect_t *prect;
-		        rt_base_t draw_x1, draw_x2;
-		        rt_base_t draw_y1, draw_y2;
+		        int draw_x1, draw_x2;
+		        int draw_y1, draw_y2;
 
 		        prect = ((rtgui_rect_t *)(owner->clip.data + index + 1));
 		        draw_x1 = x1; draw_x2 = x2;
@@ -537,8 +537,8 @@ void rtgui_dc_draw_aa_lines(struct rtgui_dc * dst, const struct rtgui_point * po
 				for (index = 0; index < rtgui_region_num_rects(&(owner->clip)); index ++)
 				{
 					rtgui_rect_t *prect;
-					rt_base_t draw_x1, draw_x2;
-					rt_base_t draw_y1, draw_y2;
+					int draw_x1, draw_x2;
+					int draw_y1, draw_y2;
 		
 					prect = ((rtgui_rect_t *)(owner->clip.data + index + 1));
 					draw_x1 = x1; draw_x2 = x2;
@@ -701,6 +701,9 @@ rtgui_dc_blend_point(struct rtgui_dc * dst, int x, int y, enum RTGUI_BLENDMODE b
     switch (_dc_get_pixel_format(dst)) {
 	case RTGRAPHIC_PIXEL_FORMAT_RGB565:
         _dc_blend_point_rgb565(dst, x, y, blendMode, r, g, b, a);
+		break;
+	case RTGRAPHIC_PIXEL_FORMAT_BGR565:
+		_dc_blend_point_bgr565(dst, x, y, blendMode, r, g, b, a);
 		break;
     case RTGRAPHIC_PIXEL_FORMAT_RGB888:
         _dc_blend_point_rgb888(dst, x, y, blendMode, r, g, b, a);
@@ -1162,7 +1165,7 @@ _dc_calc_blend_line_func(rt_uint8_t pixel_format)
 	case RTGRAPHIC_PIXEL_FORMAT_RGB565:
 		return _dc_blend_line_rgb565;
 	case RTGRAPHIC_PIXEL_FORMAT_BGR565:
-		return _dc_blend_line_rgb565;
+		return _dc_blend_line_bgr565;
 	case RTGRAPHIC_PIXEL_FORMAT_RGB888:
 		return _dc_blend_line_rgb888;
 	case RTGRAPHIC_PIXEL_FORMAT_ARGB888:
@@ -1232,8 +1235,8 @@ rtgui_dc_blend_line(struct rtgui_dc * dst, int x1, int y1, int x2, int y2,
 			for (index = 0; index < rtgui_region_num_rects(&(owner->clip)); index ++)
 	    	{
 		        rtgui_rect_t *prect;
-		        rt_base_t draw_x1, draw_x2;
-		        rt_base_t draw_y1, draw_y2;
+		        int draw_x1, draw_x2;
+		        int draw_y1, draw_y2;
 
 		        prect = ((rtgui_rect_t *)(owner->clip.data + index + 1));
 		        draw_x1 = x1; draw_x2 = x2;
@@ -1552,7 +1555,6 @@ rtgui_dc_blend_fill_rect(struct rtgui_dc* dst, const rtgui_rect_t *rect,
 		if (owner->clip.data == RT_NULL)
 		{
 	        rtgui_rect_t *prect;
-	        int offset = 0;
 	        prect = &(owner->clip.extents);
 
 			/* convert logic to device */

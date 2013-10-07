@@ -420,7 +420,7 @@ do { \
 	\
 	/* remove compiling warning */ \
 	r = 0; g = 0; b = 0; a = 0; \
-	inva = 0; \
+	inva = 0; inva = inva; \
     /* Draw the initial pixel, which is always exactly intersected by \
        the line and so needs no weighting */ \
     opaque_op(x1, y1); \
