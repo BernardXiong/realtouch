@@ -14,6 +14,7 @@
 #ifndef __RTGUI_IMAGE_BMP_H__
 #define __RTGUI_IMAGE_BMP_H__
 
+#pragma pack(push)
 #pragma pack(2)
 
 struct rtgui_image_bmp_header
@@ -38,9 +39,8 @@ struct rtgui_image_bmp_header
     rt_uint32_t biClrUsed;
     rt_uint32_t biClrImportant;
 };
-#ifdef _WIN32_NATIVE
-#pragma warning(disable : 4103)
-#endif
+#pragma pack(pop)
+
 void rtgui_image_bmp_init(void);
 
 #endif

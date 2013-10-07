@@ -7,18 +7,10 @@
 #include <rtgui/rtgui_xml.h>
 #include <rtgui/widgets/panel.h>
 
-#ifdef _WIN32
-// #include <io.h>
-// #include <dirent.h>
-// #include <sys/stat.h>
-#define PATH_SEPARATOR      '\\'
-#include <dfs_posix.h>
-#else
 #include <dfs_posix.h>
 #define PATH_SEPARATOR      '/'
-#endif
 
-#define APP_PATH            "/SD/programs"
+#define APP_PATH            "/programs"
 #define ITEM_MAX            (32)
 
 static struct rtgui_list_item *items = RT_NULL;

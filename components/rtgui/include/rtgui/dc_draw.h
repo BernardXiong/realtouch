@@ -1,5 +1,26 @@
-#ifndef __DC_DRAW_H__
-#define __DC_DRAW_H__
+/*
+ * File      : dc_blend.c
+ * This file is part of RT-Thread GUI
+ * COPYRIGHT (C) 2006 - 2013, RT-Thread Development Team
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Change Logs:
+ * Date           Author       Notes
+ * 2013-10-04     Bernard      porting SDL software render to RT-Thread GUI
+ */
 
 /*
   Simple DirectMedia Layer
@@ -22,7 +43,10 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <rtgui/rtgui_blit.h>
+#ifndef __DC_DRAW_H__
+#define __DC_DRAW_H__
+
+#include <rtgui/blit.h>
 
 /* This code assumes that r, g, b, a are the source color,
  * and in the blend and add case, the RGB values are premultiplied by a.
@@ -38,8 +62,7 @@
 #define DRAW_FASTSETPIXEL4 DRAW_FASTSETPIXEL(rt_uint32_t)
 
 #define DRAW_FASTSETPIXELXY(x, y, type, bpp, color) \
-    *(type *)((rt_uint8_t *)dst->pixels + (y) * dst->pitch \
-                                   + (x) * bpp) = (type) color
+    *(type *)(_dc_get_pixel(dst, x, y))= (type) color
 
 #define DRAW_FASTSETPIXELXY1(x, y) DRAW_FASTSETPIXELXY(x, y, rt_uint8_t, 1, color)
 #define DRAW_FASTSETPIXELXY2(x, y) DRAW_FASTSETPIXELXY(x, y, rt_uint16_t, 2, color)
@@ -83,8 +106,7 @@ do { \
 
 #define DRAW_SETPIXELXY(x, y, type, bpp, op) \
 do { \
-    type *pixel = (type *)((rt_uint8_t *)dst->pixels + (y) * dst->pitch \
-                                                + (x) * bpp); \
+    type *pixel = (type *)(_dc_get_pixel(dst, x, y));\
     op; \
 } while (0)
 
@@ -151,6 +173,37 @@ do { \
     DRAW_SETPIXELXY(x, y, rt_uint16_t, 2, DRAW_SETPIXEL_MOD_RGB565)
 
 /*
+ * Define draw operators for BGR565
+ */
+
+#define DRAW_SETPIXEL_BGR565 \
+    DRAW_SETPIXEL(BGR565_FROM_RGB(*pixel, sr, sg, sb))
+
+#define DRAW_SETPIXEL_BLEND_BGR565 \
+    DRAW_SETPIXEL_BLEND(RGB_FROM_BGR565(*pixel, sr, sg, sb), \
+                        BGR565_FROM_RGB(*pixel, sr, sg, sb))
+
+#define DRAW_SETPIXEL_ADD_BGR565 \
+    DRAW_SETPIXEL_ADD(RGB_FROM_BGR565(*pixel, sr, sg, sb), \
+                      BGR565_FROM_RGB(*pixel, sr, sg, sb))
+
+#define DRAW_SETPIXEL_MOD_BGR565 \
+    DRAW_SETPIXEL_MOD(RGB_FROM_BGR565(*pixel, sr, sg, sb), \
+                      BGR565_FROM_RGB(*pixel, sr, sg, sb))
+
+#define DRAW_SETPIXELXY_BGR565(x, y) \
+    DRAW_SETPIXELXY(x, y, rt_uint16_t, 2, DRAW_SETPIXEL_BGR565)
+
+#define DRAW_SETPIXELXY_BLEND_BGR565(x, y) \
+    DRAW_SETPIXELXY(x, y, rt_uint16_t, 2, DRAW_SETPIXEL_BLEND_BGR565)
+
+#define DRAW_SETPIXELXY_ADD_BGR565(x, y) \
+    DRAW_SETPIXELXY(x, y, rt_uint16_t, 2, DRAW_SETPIXEL_ADD_BGR565)
+
+#define DRAW_SETPIXELXY_MOD_BGR565(x, y) \
+    DRAW_SETPIXELXY(x, y, rt_uint16_t, 2, DRAW_SETPIXEL_MOD_BGR565)
+
+/*
  * Define draw operators for RGB888
  */
 
@@ -213,81 +266,6 @@ do { \
     DRAW_SETPIXELXY(x, y, rt_uint32_t, 4, DRAW_SETPIXEL_MOD_ARGB8888)
 
 /*
- * Define draw operators for general RGB
- */
-
-#define DRAW_SETPIXEL_RGB \
-    DRAW_SETPIXEL(PIXEL_FROM_RGB(*pixel, fmt, sr, sg, sb))
-
-#define DRAW_SETPIXEL_BLEND_RGB \
-    DRAW_SETPIXEL_BLEND(RGB_FROM_PIXEL(*pixel, fmt, sr, sg, sb), \
-                        PIXEL_FROM_RGB(*pixel, fmt, sr, sg, sb))
-
-#define DRAW_SETPIXEL_ADD_RGB \
-    DRAW_SETPIXEL_ADD(RGB_FROM_PIXEL(*pixel, fmt, sr, sg, sb), \
-                      PIXEL_FROM_RGB(*pixel, fmt, sr, sg, sb))
-
-#define DRAW_SETPIXEL_MOD_RGB \
-    DRAW_SETPIXEL_MOD(RGB_FROM_PIXEL(*pixel, fmt, sr, sg, sb), \
-                      PIXEL_FROM_RGB(*pixel, fmt, sr, sg, sb))
-
-#define DRAW_SETPIXELXY2_RGB(x, y) \
-    DRAW_SETPIXELXY(x, y, rt_uint16_t, 2, DRAW_SETPIXEL_RGB)
-
-#define DRAW_SETPIXELXY4_RGB(x, y) \
-    DRAW_SETPIXELXY(x, y, rt_uint32_t, 4, DRAW_SETPIXEL_RGB)
-
-#define DRAW_SETPIXELXY2_BLEND_RGB(x, y) \
-    DRAW_SETPIXELXY(x, y, rt_uint16_t, 2, DRAW_SETPIXEL_BLEND_RGB)
-
-#define DRAW_SETPIXELXY4_BLEND_RGB(x, y) \
-    DRAW_SETPIXELXY(x, y, rt_uint32_t, 4, DRAW_SETPIXEL_BLEND_RGB)
-
-#define DRAW_SETPIXELXY2_ADD_RGB(x, y) \
-    DRAW_SETPIXELXY(x, y, rt_uint16_t, 2, DRAW_SETPIXEL_ADD_RGB)
-
-#define DRAW_SETPIXELXY4_ADD_RGB(x, y) \
-    DRAW_SETPIXELXY(x, y, rt_uint32_t, 4, DRAW_SETPIXEL_ADD_RGB)
-
-#define DRAW_SETPIXELXY2_MOD_RGB(x, y) \
-    DRAW_SETPIXELXY(x, y, rt_uint16_t, 2, DRAW_SETPIXEL_MOD_RGB)
-
-#define DRAW_SETPIXELXY4_MOD_RGB(x, y) \
-    DRAW_SETPIXELXY(x, y, rt_uint32_t, 4, DRAW_SETPIXEL_MOD_RGB)
-
-
-/*
- * Define draw operators for general RGBA
- */
-
-#define DRAW_SETPIXEL_RGBA \
-    DRAW_SETPIXEL(PIXEL_FROM_RGBA(*pixel, fmt, sr, sg, sb, sa))
-
-#define DRAW_SETPIXEL_BLEND_RGBA \
-    DRAW_SETPIXEL_BLEND(RGBA_FROM_PIXEL(*pixel, fmt, sr, sg, sb, sa), \
-                        PIXEL_FROM_RGBA(*pixel, fmt, sr, sg, sb, sa))
-
-#define DRAW_SETPIXEL_ADD_RGBA \
-    DRAW_SETPIXEL_ADD(RGBA_FROM_PIXEL(*pixel, fmt, sr, sg, sb, sa), \
-                      PIXEL_FROM_RGBA(*pixel, fmt, sr, sg, sb, sa))
-
-#define DRAW_SETPIXEL_MOD_RGBA \
-    DRAW_SETPIXEL_MOD(RGBA_FROM_PIXEL(*pixel, fmt, sr, sg, sb, sa), \
-                      PIXEL_FROM_RGBA(*pixel, fmt, sr, sg, sb, sa))
-
-#define DRAW_SETPIXELXY4_RGBA(x, y) \
-    DRAW_SETPIXELXY(x, y, rt_uint32_t, 4, DRAW_SETPIXEL_RGBA)
-
-#define DRAW_SETPIXELXY4_BLEND_RGBA(x, y) \
-    DRAW_SETPIXELXY(x, y, rt_uint32_t, 4, DRAW_SETPIXEL_BLEND_RGBA)
-
-#define DRAW_SETPIXELXY4_ADD_RGBA(x, y) \
-    DRAW_SETPIXELXY(x, y, rt_uint32_t, 4, DRAW_SETPIXEL_ADD_RGBA)
-
-#define DRAW_SETPIXELXY4_MOD_RGBA(x, y) \
-    DRAW_SETPIXELXY(x, y, rt_uint32_t, 4, DRAW_SETPIXEL_MOD_RGBA)
-
-/*
  * Define line drawing macro
  */
 
@@ -297,13 +275,13 @@ do { \
 #define HLINE(type, op, draw_end) \
 { \
     int length; \
-    int pitch = (dst->pitch / dst->format->BytesPerPixel); \
+    int pitch = (_dc_get_pitch(dst)); \
     type *pixel; \
     if (x1 <= x2) { \
-        pixel = (type *)dst->pixels + y1 * pitch + x1; \
+        pixel = (type *)_dc_get_pixel(dst, x1, y1); \
         length = draw_end ? (x2-x1+1) : (x2-x1); \
     } else { \
-        pixel = (type *)dst->pixels + y1 * pitch + x2; \
+        pixel = (type *)_dc_get_pixel(dst, x2, y1); \
         if (!draw_end) { \
             ++pixel; \
         } \
@@ -319,13 +297,13 @@ do { \
 #define VLINE(type, op, draw_end) \
 { \
     int length; \
-    int pitch = (dst->pitch / dst->format->BytesPerPixel); \
+    int pitch = (_dc_get_pitch(dst)); \
     type *pixel; \
     if (y1 <= y2) { \
-        pixel = (type *)dst->pixels + y1 * pitch + x1; \
+        pixel = (type *)_dc_get_pixel(dst, x1, y1); \
         length = draw_end ? (y2-y1+1) : (y2-y1); \
     } else { \
-        pixel = (type *)dst->pixels + y2 * pitch + x1; \
+        pixel = (type *)_dc_get_pixel(dst, x1, y2); \
         if (!draw_end) { \
             pixel += pitch; \
         } \
@@ -341,10 +319,10 @@ do { \
 #define DLINE(type, op, draw_end) \
 { \
     int length; \
-    int pitch = (dst->pitch / dst->format->BytesPerPixel); \
+    int pitch = (_dc_get_pitch(dst)); \
     type *pixel; \
     if (y1 <= y2) { \
-        pixel = (type *)dst->pixels + y1 * pitch + x1; \
+        pixel = (type *)_dc_get_pixel(dst, x1, y1); \
         if (x1 <= x2) { \
             ++pitch; \
         } else { \
@@ -352,7 +330,7 @@ do { \
         } \
         length = (y2-y1); \
     } else { \
-        pixel = (type *)dst->pixels + y2 * pitch + x2; \
+        pixel = (type *)_dc_get_pixel(dst, x2, y2); \
         if (x2 <= x1) { \
             ++pitch; \
         } else { \
@@ -439,17 +417,20 @@ do { \
     rt_uint16_t ErrorAccTemp, Weighting; \
     int DeltaX, DeltaY, Temp, XDir; \
     unsigned r, g, b, a, inva; \
- \
+	\
+	/* remove compiling warning */ \
+	r = 0; g = 0; b = 0; a = 0; \
+	inva = 0; \
     /* Draw the initial pixel, which is always exactly intersected by \
        the line and so needs no weighting */ \
     opaque_op(x1, y1); \
- \
+	\
     /* Draw the final pixel, which is always exactly intersected by the line \
        and so needs no weighting */ \
     if (draw_end) { \
         opaque_op(x2, y2); \
     } \
- \
+	\
     /* Make sure the line runs top to bottom */ \
     if (y1 > y2) { \
         Temp = y1; y1 = y2; y2 = Temp; \
@@ -475,7 +456,7 @@ do { \
         ErrorAdj = ((unsigned long) DeltaX << 16) / (unsigned long) DeltaY; \
         /* Draw all pixels other than the first and last */ \
         while (--DeltaY) { \
-            ErrorAccTemp = ErrorAcc;   /* remember currrent accumulated error */ \
+            ErrorAccTemp = ErrorAcc;   /* remember current accumulated error */ \
             ErrorAcc += ErrorAdj;      /* calculate error for next pixel */ \
             if (ErrorAcc <= ErrorAccTemp) { \
                 /* The error accumulator turned over, so advance the X coord */ \
@@ -541,25 +522,19 @@ do { \
     } \
 }
 
-#ifdef AA_LINES
 #define AALINE(x1, y1, x2, y2, opaque_op, blend_op, draw_end) \
             WULINE(x1, y1, x2, y2, opaque_op, blend_op, draw_end)
-#else
-#define AALINE(x1, y1, x2, y2, opaque_op, blend_op, draw_end) \
-            BLINE(x1, y1, x2, y2, opaque_op, draw_end)
-#endif
 
 /*
  * Define fill rect macro
  */
-
 #define FILLRECT(type, op) \
 do { \
-    int width = rect->w; \
-    int height = rect->h; \
-    int pitch = (dst->pitch / dst->format->BytesPerPixel); \
+    int width = rect->x2 - rect->x1; \
+    int height = rect->y2 - rect->y1; \
+    int pitch = _dc_get_pitch(dst)/(_dc_get_bits_per_pixel(dst)/8); \
     int skip = pitch - width; \
-    type *pixel = (type *)dst->pixels + rect->y * pitch + rect->x; \
+    type *pixel = (type *)_dc_get_pixel(dst, rect->x1, rect->y1); \
     while (height--) { \
         { int n = (width+3)/4; \
             switch (width & 3) { \
@@ -574,6 +549,4 @@ do { \
     } \
 } while (0)
 
-/* vi: set ts=4 sw=4 expandtab: */
 #endif
-

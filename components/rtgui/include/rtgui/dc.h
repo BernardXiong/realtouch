@@ -19,6 +19,11 @@
 #include <rtgui/driver.h>
 #include <rtgui/widgets/widget.h>
 
+#define RTGUI_BLENDMODE_NONE    0x00
+#define RTGUI_BLENDMODE_BLEND   0x01
+#define RTGUI_BLENDMODE_ADD     0x02
+#define RTGUI_BLENDMODE_MOD     0x03
+
 enum rtgui_dc_type
 {
     RTGUI_DC_HW,
@@ -66,6 +71,28 @@ struct rtgui_dc_hw
 	struct rtgui_dc parent;
 	rtgui_widget_t *owner;
 	const struct rtgui_graphic_driver *hw_driver;
+};
+
+struct rtgui_dc_buffer
+{
+	struct rtgui_dc parent;
+
+	/* graphic context */
+	rtgui_gc_t gc;
+
+	/* pixel format */
+	rt_uint8_t pixel_format;
+	rt_uint8_t blend_mode;
+
+	/* width and height */
+	rt_uint16_t width, height;
+	rt_uint16_t pitch;
+
+	/* blit info */
+	rtgui_region_t clip;
+
+	/* pixel data */
+	rt_uint8_t *pixel;
 };
 
 #define RTGUI_DC_FC(dc)         (rtgui_dc_get_gc(dc)->foreground)

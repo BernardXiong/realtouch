@@ -328,25 +328,28 @@ static void rtgui_dc_client_draw_vline(struct rtgui_dc *self, int x, int y1, int
         /* draw vline */
         hw_driver->ops->draw_vline(&(owner->gc.foreground), x, y1, y2);
     }
-    else for (index = 0; index < rtgui_region_num_rects(&(owner->clip)); index ++)
-        {
-            rtgui_rect_t *prect;
-            register rt_base_t draw_y1, draw_y2;
+    else 
+	{
+		for (index = 0; index < rtgui_region_num_rects(&(owner->clip)); index ++)
+    	{
+	        rtgui_rect_t *prect;
+	        register rt_base_t draw_y1, draw_y2;
 
-            prect = ((rtgui_rect_t *)(owner->clip.data + index + 1));
-            draw_y1 = y1;
-            draw_y2 = y2;
+	        prect = ((rtgui_rect_t *)(owner->clip.data + index + 1));
+	        draw_y1 = y1;
+	        draw_y2 = y2;
 
-            /* calculate vline clip */
-            if (prect->x1 > x   || prect->x2 <= x) continue;
-            if (prect->y2 <= y1 || prect->y1 > y2) continue;
+	        /* calculate vline clip */
+	        if (prect->x1 > x   || prect->x2 <= x) continue;
+	        if (prect->y2 <= y1 || prect->y1 > y2) continue;
 
-            if (prect->y1 > y1) draw_y1 = prect->y1;
-            if (prect->y2 < y2) draw_y2 = prect->y2;
+	        if (prect->y1 > y1) draw_y1 = prect->y1;
+	        if (prect->y2 < y2) draw_y2 = prect->y2;
 
-            /* draw vline */
-            hw_driver->ops->draw_vline(&(owner->gc.foreground), x, draw_y1, draw_y2);
-        }
+	        /* draw vline */
+	        hw_driver->ops->draw_vline(&(owner->gc.foreground), x, draw_y1, draw_y2);
+	    }
+    }
 }
 
 /*
@@ -385,7 +388,9 @@ static void rtgui_dc_client_draw_hline(struct rtgui_dc *self, int x1, int x2, in
         /* draw hline */
         hw_driver->ops->draw_hline(&(owner->gc.foreground), x1, x2, y);
     }
-    else for (index = 0; index < rtgui_region_num_rects(&(owner->clip)); index ++)
+    else
+	{
+		for (index = 0; index < rtgui_region_num_rects(&(owner->clip)); index ++)
         {
             rtgui_rect_t *prect;
             register rt_base_t draw_x1, draw_x2;
@@ -404,6 +409,7 @@ static void rtgui_dc_client_draw_hline(struct rtgui_dc *self, int x1, int x2, in
             /* draw hline */
             hw_driver->ops->draw_hline(&(owner->gc.foreground), draw_x1, draw_x2, y);
         }
+    }
 }
 
 static void rtgui_dc_client_fill_rect(struct rtgui_dc *self, struct rtgui_rect *rect)
@@ -472,7 +478,9 @@ static void rtgui_dc_client_blit_line(struct rtgui_dc *self, int x1, int x2, int
         /* draw hline */
         hw_driver->ops->draw_raw_hline(line_data + offset, x1, x2, y);
     }
-    else for (index = 0; index < rtgui_region_num_rects(&(owner->clip)); index ++)
+    else
+	{
+		for (index = 0; index < rtgui_region_num_rects(&(owner->clip)); index ++)
         {
             rtgui_rect_t *prect;
             register rt_base_t draw_x1, draw_x2;
@@ -491,6 +499,7 @@ static void rtgui_dc_client_blit_line(struct rtgui_dc *self, int x1, int x2, int
             /* draw hline */
             hw_driver->ops->draw_raw_hline(line_data + (draw_x1 - x1) * hw_driver->bits_per_pixel / 8, draw_x1, draw_x2, y);
         }
+    }
 }
 
 static void rtgui_dc_client_blit(struct rtgui_dc *dc, struct rtgui_point *dc_point, struct rtgui_dc *dest, rtgui_rect_t *rect)

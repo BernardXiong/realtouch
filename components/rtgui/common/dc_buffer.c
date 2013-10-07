@@ -20,33 +20,6 @@
 
 #define hw_driver               (rtgui_graphic_driver_get_default())
 
-#define RTGUI_BLENDMODE_NONE    0x00
-#define RTGUI_BLENDMODE_BLEND   0x01
-#define RTGUI_BLENDMODE_ADD     0x02
-#define RTGUI_BLENDMODE_MOD     0x03
-
-struct rtgui_dc_buffer
-{
-    struct rtgui_dc parent;
-
-    /* graphic context */
-    rtgui_gc_t gc;
-
-    /* pixel format */
-    rt_uint8_t pixel_format;
-    rt_uint8_t blend_mode;
-
-    /* width and height */
-    rt_uint16_t width, height;
-    rt_uint16_t pitch;
-
-    /* blit info */
-    rtgui_region_t clip;
-
-    /* pixel data */
-    rt_uint8_t *pixel;
-};
-
 static rt_bool_t rtgui_dc_buffer_fini(struct rtgui_dc *dc);
 static void rtgui_dc_buffer_draw_point(struct rtgui_dc *dc, int x, int y);
 static void rtgui_dc_buffer_draw_color_point(struct rtgui_dc *dc, int x, int y, rtgui_color_t color);

@@ -1,16 +1,27 @@
 /*
  * File      : widget.c
- * This file is part of RTGUI in RT-Thread RTOS
- * COPYRIGHT (C) 2006 - 2009, RT-Thread Development Team
+ * This file is part of RT-Thread GUI
+ * COPYRIGHT (C) 2006 - 2013, RT-Thread Development Team
  *
- * The license and distribution terms for this file may be
- * found in the file LICENSE in this distribution or at
- * http://www.rt-thread.org/license/LICENSE
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Change Logs:
  * Date           Author       Notes
  * 2009-10-04     Bernard      first version
  * 2010-06-26     Bernard      add user_data to widget structure
+ * 2013-10-07     Bernard      remove the win_check in update_clip.
  */
 
 #include <rtgui/dc_client.h>
@@ -552,22 +563,11 @@ void rtgui_widget_update_clip(rtgui_widget_t *widget)
     if (widget == RT_NULL || RTGUI_WIDGET_IS_HIDE(widget))
         return;
 
-    // TODO: use some magic to remove this ugly sanity check
-    if (RTGUI_IS_WIN(widget))
-    {
-        rt_kprintf("RTGUI: clip of window is managed by topwin\n");
-        rt_kprintf("RTGUI: don't use rtgui_widget_update_clip(win)\n");
-        return;
-    }
-
     parent = widget->parent;
     /* if there is no parent, there is no clip to update. */
-    if (parent == RT_NULL)
-    {
-        return;
-    }
+    if (parent == RT_NULL) return;
 
-    /* reset clip to extent */
+	/* reset clip to extent */
     rtgui_region_reset(&(widget->clip), &(widget->extent));
 
     /* limit widget extent in parent extent */

@@ -212,6 +212,7 @@ void rtgui_container_add_child(rtgui_container_t *container, rtgui_widget_t *chi
 {
     RT_ASSERT(container != RT_NULL);
     RT_ASSERT(child != RT_NULL);
+	RT_ASSERT(child->parent == RT_NULL);
 
     /* set parent and toplevel widget */
     child->parent = RTGUI_WIDGET(container);

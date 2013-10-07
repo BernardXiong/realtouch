@@ -97,6 +97,18 @@ int  rtgui_rect_is_equal(const rtgui_rect_t *rect1, const rtgui_rect_t *rect2);
 rtgui_rect_t *rtgui_rect_set(rtgui_rect_t *rect, int x, int y, int w, int h);
 rt_bool_t rtgui_rect_is_empty(const rtgui_rect_t *rect);
 
+rt_inline void rtgui_rect_init(rtgui_rect_t* rect, int x, int y, int width, int height)
+{
+	rect->x1 = x; rect->y1 = y;
+	rect->x2 = x + width; rect->y2 = y + height;
+}
+
+#define RTGUI_RECT(rect, x, y, w, h)	\
+	do { \
+	rect.x1 = x; rect.y1 = y; \
+	rect.x2 = (x) + (w); rect.y2 = (y) + (h); \
+	} while (0)
+
 #if defined(__cplusplus) || defined(c_plusplus)
 }
 #endif
