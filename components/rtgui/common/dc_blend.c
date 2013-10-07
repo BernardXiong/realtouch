@@ -667,13 +667,13 @@ _dc_blend_point_argb8888(struct rtgui_dc * dst, int x, int y, enum RTGUI_BLENDMO
     return 0;
 }
 
-int
+void 
 rtgui_dc_blend_point(struct rtgui_dc * dst, int x, int y, enum RTGUI_BLENDMODE blendMode, rt_uint8_t r,
                rt_uint8_t g, rt_uint8_t b, rt_uint8_t a)
 {
 	RT_ASSERT(dst != RT_NULL);
 	/* we do not support pixel DC */
-	if (_dc_get_pixel(dst, 0, 0) == RT_NULL) return 0 ; 
+	if (_dc_get_pixel(dst, 0, 0) == RT_NULL) return ; 
 
 	/* Perform clipping */
 	if (dst->type == RTGUI_DC_CLIENT)
@@ -683,13 +683,13 @@ rtgui_dc_blend_point(struct rtgui_dc * dst, int x, int y, enum RTGUI_BLENDMODE b
 
 		/* get owner */
 		owner = RTGUI_CONTAINER_OF(dst, struct rtgui_widget, dc_type);
-		if (!RTGUI_WIDGET_IS_DC_VISIBLE(owner)) return 0;
+		if (!RTGUI_WIDGET_IS_DC_VISIBLE(owner)) return ;
 
 		x = x + owner->extent.x1;
 		y = y + owner->extent.y1;
 
 		if (rtgui_region_contains_point(&(owner->clip), x, y, &rect) != RT_EOK)
-			return 0;
+			return ;
 	}
 
     if (blendMode == RTGUI_BLENDMODE_BLEND || blendMode == RTGUI_BLENDMODE_ADD) {
@@ -700,19 +700,20 @@ rtgui_dc_blend_point(struct rtgui_dc * dst, int x, int y, enum RTGUI_BLENDMODE b
 
     switch (_dc_get_pixel_format(dst)) {
 	case RTGRAPHIC_PIXEL_FORMAT_RGB565:
-        return _dc_blend_point_rgb565(dst, x, y, blendMode, r, g, b, a);
+        _dc_blend_point_rgb565(dst, x, y, blendMode, r, g, b, a);
+		break;
     case RTGRAPHIC_PIXEL_FORMAT_RGB888:
-        return _dc_blend_point_rgb888(dst, x, y, blendMode, r, g, b, a);
+        _dc_blend_point_rgb888(dst, x, y, blendMode, r, g, b, a);
+		break;
 	case RTGRAPHIC_PIXEL_FORMAT_ARGB888:
-		return _dc_blend_point_argb8888(dst, x, y, blendMode, r, g, b, a);
+		_dc_blend_point_argb8888(dst, x, y, blendMode, r, g, b, a);
+		break;
     default:
         break;
     }
-
-	return 0;
 }
 
-int
+void 
 rtgui_dc_blend_points(struct rtgui_dc * dst, const rtgui_point_t * points, int count,
                 enum RTGUI_BLENDMODE blendMode, rt_uint8_t r, rt_uint8_t g, rt_uint8_t b, rt_uint8_t a)
 {
@@ -720,11 +721,10 @@ rtgui_dc_blend_points(struct rtgui_dc * dst, const rtgui_point_t * points, int c
     int x, y;
     int (*func)(struct rtgui_dc * dst, int x, int y,
                 enum RTGUI_BLENDMODE blendMode, rt_uint8_t r, rt_uint8_t g, rt_uint8_t b, rt_uint8_t a) = NULL;
-    int status = 0;
 
 	RT_ASSERT(dst != RT_NULL);
 	/* we do not support pixel DC */
-	if (_dc_get_pixel(dst, 0, 0) == RT_NULL) return 0 ; 
+	if (_dc_get_pixel(dst, 0, 0) == RT_NULL) return; 
 
     if (blendMode == RTGUI_BLENDMODE_BLEND || blendMode == RTGUI_BLENDMODE_ADD)
 	{
@@ -755,7 +755,7 @@ rtgui_dc_blend_points(struct rtgui_dc * dst, const rtgui_point_t * points, int c
 		rtgui_rect_t rect;
 
 		owner = RTGUI_CONTAINER_OF(dst, struct rtgui_widget, dc_type);
-		if (!RTGUI_WIDGET_IS_DC_VISIBLE(owner)) return 0;
+		if (!RTGUI_WIDGET_IS_DC_VISIBLE(owner)) return ;
 
 		for (i = 0; i < count; ++i) 
 		{
@@ -769,7 +769,7 @@ rtgui_dc_blend_points(struct rtgui_dc * dst, const rtgui_point_t * points, int c
 			if (rtgui_region_contains_point(&(owner->clip), x, y, &rect) != RT_EOK)
 				continue;
 
-			status = func(dst, x, y, blendMode, r, g, b, a);
+			func(dst, x, y, blendMode, r, g, b, a);
 		}
 	}
 	else
@@ -779,11 +779,9 @@ rtgui_dc_blend_points(struct rtgui_dc * dst, const rtgui_point_t * points, int c
 			x = points[i].x;
 			y = points[i].y;
 
-			status = func(dst, x, y, blendMode, r, g, b, a);
+			func(dst, x, y, blendMode, r, g, b, a);
 		}
 	}
-
-    return status;
 }
 
 static void
@@ -1174,7 +1172,7 @@ _dc_calc_blend_line_func(rt_uint8_t pixel_format)
     return NULL;
 }
 
-int
+void 
 rtgui_dc_blend_line(struct rtgui_dc * dst, int x1, int y1, int x2, int y2,
               enum RTGUI_BLENDMODE blendMode, rtgui_color_t color)
 {
@@ -1185,14 +1183,14 @@ rtgui_dc_blend_line(struct rtgui_dc * dst, int x1, int y1, int x2, int y2,
 
 	RT_ASSERT(dst != RT_NULL);
 	/* we do not support pixel DC */
-	if (_dc_get_pixel(dst, 0, 0) == RT_NULL) return 0 ; 
+	if (_dc_get_pixel(dst, 0, 0) == RT_NULL) return; 
 
 	pixel_format = _dc_get_pixel_format(dst);
     func = _dc_calc_blend_line_func(pixel_format);	
     if (!func) 
 	{
         rt_kprintf("dc_blend_line(): Unsupported pixel format\n");
-		return 0;
+		return;
     }
 
 	r = RTGUI_RGB_R(color);
@@ -1205,7 +1203,7 @@ rtgui_dc_blend_line(struct rtgui_dc * dst, int x1, int y1, int x2, int y2,
 	{
 		/* get owner */
 		owner = RTGUI_CONTAINER_OF(dst, struct rtgui_widget, dc_type);
-		if (!RTGUI_WIDGET_IS_DC_VISIBLE(owner)) return 0;
+		if (!RTGUI_WIDGET_IS_DC_VISIBLE(owner)) return;
 		
 		x1 = x1 + owner->extent.x1;
 		x2 = x2 + owner->extent.x1;
@@ -1222,7 +1220,7 @@ rtgui_dc_blend_line(struct rtgui_dc * dst, int x1, int y1, int x2, int y2,
 			prect = &(owner->clip.extents);
 		
 			/* calculate line intersect */
-			if (_intersect_rect_line(prect, &x1, &y1, &x2, &y2) == RT_FALSE) return 0;
+			if (_intersect_rect_line(prect, &x1, &y1, &x2, &y2) == RT_FALSE) return ;
 
 			/* draw line */
 			func(dst, x1, y1, x2, y2, blendMode, r, g, b, a, RT_TRUE);
@@ -1266,11 +1264,9 @@ rtgui_dc_blend_line(struct rtgui_dc * dst, int x1, int y1, int x2, int y2,
 		
     	func(dst, x1, y1, x2, y2, blendMode, r, g, b, a, RT_TRUE);
 	}
-
-	return 0;
 }
 
-int
+void
 rtgui_dc_blend_lines(struct rtgui_dc * dst, const rtgui_point_t * points, int count,
                enum RTGUI_BLENDMODE blendMode, rtgui_color_t color)
 {
@@ -1285,13 +1281,13 @@ rtgui_dc_blend_lines(struct rtgui_dc * dst, const rtgui_point_t * points, int co
 
 	RT_ASSERT(dst != RT_NULL);
 	/* we do not support pixel DC */
-	if (_dc_get_pixel(dst, 0, 0) == RT_NULL) return 0 ; 
+	if (_dc_get_pixel(dst, 0, 0) == RT_NULL) return ; 
 
 	pixel_format = _dc_get_pixel_format(dst);
     func = _dc_calc_blend_line_func(pixel_format);
     if (!func) {
         rt_kprintf("dc_blend_lines(): Unsupported pixel format\n");
-		return 0;
+		return ;
     }
 
 	/* Perform clipping */
@@ -1299,7 +1295,7 @@ rtgui_dc_blend_lines(struct rtgui_dc * dst, const rtgui_point_t * points, int co
 	{
 		/* get owner */
 		owner = RTGUI_CONTAINER_OF(dst, struct rtgui_widget, dc_type);
-		if (!RTGUI_WIDGET_IS_DC_VISIBLE(owner)) return 0;
+		if (!RTGUI_WIDGET_IS_DC_VISIBLE(owner)) return ;
 	}
 	else if (dst->type == RTGUI_DC_HW)
 	{
@@ -1341,8 +1337,8 @@ rtgui_dc_blend_lines(struct rtgui_dc * dst, const rtgui_point_t * points, int co
 				prect = &(owner->clip.extents);
 			
 				/* calculate line intersect */
-				if (prect->x1 > x2	|| prect->x2 <= x1) return 0;
-				if (prect->y2 <= y1 || prect->y1 > y2)	return 0;
+				if (prect->x1 > x2	|| prect->x2 <= x1) return ;
+				if (prect->y2 <= y1 || prect->y1 > y2)	return ;
 		
 				if (prect->y1 > y1) y1 = prect->y1;
 				if (prect->y2 < y2) y2 = prect->y2;
@@ -1401,8 +1397,6 @@ rtgui_dc_blend_lines(struct rtgui_dc * dst, const rtgui_point_t * points, int co
         rtgui_dc_blend_point(dst, points[count-1].x, points[count-1].y,
                        blendMode, r, g, b, a);
     }
-
-    return 0;
 }
 
 static void
@@ -1496,7 +1490,7 @@ _dc_blend_fill_rect_argb8888(struct rtgui_dc * dst, const rtgui_rect_t * rect,
 typedef void (*BlendFillFunc)(struct rtgui_dc * dst, const rtgui_rect_t * rect,
 			enum RTGUI_BLENDMODE blendMode, rt_uint8_t r, rt_uint8_t g, rt_uint8_t b, rt_uint8_t a);
 
-int
+void 
 rtgui_dc_blend_fill_rect(struct rtgui_dc* dst, const rtgui_rect_t *rect,
                   enum RTGUI_BLENDMODE blendMode, rtgui_color_t color)
 {
@@ -1508,7 +1502,7 @@ rtgui_dc_blend_fill_rect(struct rtgui_dc* dst, const rtgui_rect_t *rect,
     /* This function doesn't work on surfaces < 8 bpp */
     if (_dc_get_bits_per_pixel(dst) < 8) {
         rt_kprintf("dc_blend_fill_rect(): Unsupported pixel format\n");
-		return 0;
+		return ;
     }
 
 	r = RTGUI_RGB_R(color);
@@ -1542,7 +1536,7 @@ rtgui_dc_blend_fill_rect(struct rtgui_dc* dst, const rtgui_rect_t *rect,
 	if (func == RT_NULL)
 	{
         rt_kprintf("dc_blend_fill_rect(): Unsupported pixel format\n");
-		return 0;
+		return ;
 	}
 
 	if (dst->type == RTGUI_DC_CLIENT)
@@ -1553,7 +1547,7 @@ rtgui_dc_blend_fill_rect(struct rtgui_dc* dst, const rtgui_rect_t *rect,
 	
 	    /* get owner */
 	    owner = RTGUI_CONTAINER_OF(dst, struct rtgui_widget, dc_type);
-	    if (!RTGUI_WIDGET_IS_DC_VISIBLE(owner)) return 0;
+	    if (!RTGUI_WIDGET_IS_DC_VISIBLE(owner)) return ;
 
 		if (owner->clip.data == RT_NULL)
 		{
@@ -1566,8 +1560,8 @@ rtgui_dc_blend_fill_rect(struct rtgui_dc* dst, const rtgui_rect_t *rect,
 			rtgui_rect_moveto(&draw_rect,owner->extent.x1, owner->extent.y1);
 			
 	        /* calculate rect intersect */
-	        if (prect->y1 > draw_rect.y2  || prect->y2 <= draw_rect.y1) return 0;
-	        if (prect->x2 <= draw_rect.x1 || prect->x1 > draw_rect.x2 ) return 0;
+	        if (prect->y1 > draw_rect.y2  || prect->y2 <= draw_rect.y1) return ;
+	        if (prect->x2 <= draw_rect.x1 || prect->x1 > draw_rect.x2 ) return ;
 			rtgui_rect_intersect(prect, &draw_rect);
 
 			func(dst, &draw_rect, blendMode, r, g, b, a);
@@ -1596,11 +1590,9 @@ rtgui_dc_blend_fill_rect(struct rtgui_dc* dst, const rtgui_rect_t *rect,
 	{
 		func(dst, rect, blendMode, r, g, b, a);
 	}
-	
-	return 0;
 }
 
-int
+void 
 rtgui_dc_blend_fill_rects(struct rtgui_dc * dst, const rtgui_rect_t *rects, int count,
                    enum RTGUI_BLENDMODE blendMode, rtgui_color_t color)
 {
@@ -1615,7 +1607,7 @@ rtgui_dc_blend_fill_rects(struct rtgui_dc * dst, const rtgui_rect_t *rects, int 
     /* This function doesn't work on surfaces < 8 bpp */
     if (_dc_get_bits_per_pixel(dst)< 8) {
         rt_kprintf("dc_blend_fill_rects(): Unsupported pixel format\n");
-		return 0;
+		return;
     }
 
 	r = RTGUI_RGB_R(color);
@@ -1649,14 +1641,14 @@ rtgui_dc_blend_fill_rects(struct rtgui_dc * dst, const rtgui_rect_t *rects, int 
 	if (func == RT_NULL)
 	{
         rt_kprintf("dc_blend_fill_rects(): Unsupported pixel format\n");
-		return 0;
+		return;
 	}
 	
 	if (dst->type == RTGUI_DC_CLIENT)
 	{
 		/* get owner */
 		owner = RTGUI_CONTAINER_OF(dst, struct rtgui_widget, dc_type);
-		if (!RTGUI_WIDGET_IS_DC_VISIBLE(owner)) return 0;
+		if (!RTGUI_WIDGET_IS_DC_VISIBLE(owner)) return ;
 	}
 	
     for (i = 0; i < count; ++i) 
@@ -1678,8 +1670,8 @@ rtgui_dc_blend_fill_rects(struct rtgui_dc * dst, const rtgui_rect_t *rects, int 
 				rtgui_rect_moveto(&draw_rect,owner->extent.x1, owner->extent.y1);
 				
 		        /* calculate rect intersect */
-		        if (prect->y1 > draw_rect.y2  || prect->y2 <= draw_rect.y1) return 0;
-		        if (prect->x2 <= draw_rect.x1 || prect->x1 > draw_rect.x2 ) return 0;
+		        if (prect->y1 > draw_rect.y2  || prect->y2 <= draw_rect.y1) return ;
+		        if (prect->x2 <= draw_rect.x1 || prect->x1 > draw_rect.x2 ) return ;
 				rtgui_rect_intersect(prect, &draw_rect);
 
 				func(dst, &draw_rect, blendMode, r, g, b, a);
@@ -1709,6 +1701,5 @@ rtgui_dc_blend_fill_rects(struct rtgui_dc * dst, const rtgui_rect_t *rects, int 
 			func(dst, &rect, blendMode, r, g, b, a);
 		}		
     }
-
-    return 0;
 }
+
